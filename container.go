@@ -10,13 +10,9 @@ type holder interface {
 
 type Balancer interface {
 	// getting elements
-	Best() *element
-	Worst() *element
+	take(int) (*element, interface{})
 
-	// "feed" or "punish" elements
-	Good(*element)
-	Bad(*element)
-
+	// creating elements
 	set(*element)
 }
 
@@ -30,15 +26,12 @@ type element struct {
 	item       holder
 }
 
-func NewContainer(optimizer int, warming int) (*Container, error) {
+func NewContainer(bal Balancer, warming int) (*Container, error) {
 	cnt := new(Container)
 
-	bl, err := newBalancer(optimizer)
-	if err != nil {
-		return nil, err
-	}
-	cnt.balancer = bl
+	cnt.balancer = bal
 	cnt.all = make(map[string]*element)
+
 	return cnt, nil
 }
 
@@ -55,17 +48,19 @@ func (c *Container) Add(elem holder) {
 	}
 }
 
-func (c *Container) GetElem() *element {
+func (c *Container) GetElem() *returner_obj {
 
 	if len(c.all) == 0 {
 		return nil
 	}
 
-	return c.balancer.Best()
-}
+	elem, node := c.balancer.take(0)
 
-func (e *element) Item() interface{} {
-	return e.item
+	if elem == nil {
+		return nil
+	}
+
+	return &returner_obj{elem, node}
 }
 
 func (c *Container) Len() int {

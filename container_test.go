@@ -40,7 +40,9 @@ func TestContainer(t *testing.T) {
 
 	const elems_len = 10
 
-	cont, err := NewContainer( /*optimize strategy*/ 1 /*warmup cache*/, 100)
+	bl := NewUniformBalancer()
+
+	cont, err := NewContainer(bl /*warmup cache*/, 100)
 
 	if err != nil {
 		t.Fatalf("Error creating container: %s", err)

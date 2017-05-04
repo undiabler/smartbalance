@@ -1,12 +1,7 @@
 package smartb
 
 import (
-	"errors"
 	"sync"
-)
-
-const (
-	UBalancer = 1 + iota
 )
 
 type (
@@ -41,7 +36,7 @@ func (ub *uniformBalancer) set(el *element) {
 
 }
 
-func (ub *uniformBalancer) Best() *element {
+func (ub *uniformBalancer) take(i int) (*element, interface{}) {
 
 	var max_el *element
 	var max_node *uniformNode
@@ -68,23 +63,13 @@ func (ub *uniformBalancer) Best() *element {
 		max_node.inc()
 	}
 
-	return max_el
-}
-func (ub *uniformBalancer) Worst() *element {
-	return nil
+	return max_el, max_node
 }
 
-func (ub *uniformBalancer) Good(el *element) {
-}
-func (ub *uniformBalancer) Bad(el *element) {
-}
+// construct
+func NewUniformBalancer() *uniformBalancer {
+	ub := new(uniformBalancer)
+	ub.ranks = make(map[*element]*uniformNode)
+	return ub
 
-func newBalancer(btype int) (Balancer, error) {
-	switch btype {
-	case UBalancer:
-		ub := new(uniformBalancer)
-		ub.ranks = make(map[*element]*uniformNode)
-		return ub, nil
-	}
-	return nil, errors.New("Invalid balancer type")
 }
